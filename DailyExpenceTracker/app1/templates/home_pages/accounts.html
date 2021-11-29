@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %} Accounts {% endblock %}
+
+{% block nav %}
+
+<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+	<li class="nav-item">
+		<a class="nav-link" aria-current="page" href="{{ url_for('views_bp.dashboard') }}">Dashboard</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link" href="{{ url_for('views_bp.transactions') }}">Transactions</a>
+	</li>
+</ul>
+<form class="d-flex" method="POST">
+	<a class="btn btn-outline-success" href="{{ url_for('auth_bp.logout') }}">LogOut</a>
+</form>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid mt-3">
+	<div class="row">
+		<div class="col-sm col-md col-lg-3">
+			{% with messages = get_flashed_messages(with_categories=True) %}
+			{% if messages %}
+			{% for cat, msg in messages %}
+			{% if cat == 'success' %}
+			<div class="alert alert-success alert-dismissible fade show" role="alert">
+		     {{ msg }}
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+			</div>
+			{% endif %}
+			{% endfor %}
+			{% endif %}
+			{% endwith %}
+			<form method="POST">
+				{{ form.csrf_token() }}
+				<div class="mb-3">
+					{{ form.acc_name.label(class='form-label') }}
+					{{ form.acc_name(class='form-control form-control-sm') }}
+					{% if form.acc_name.error %}
+					   <span class="text-small text-muted">{{ form.acc_name.error }}</span>
+					{% endif %}
+				</div>
+				<div class="mb-3">
+					{{ form.category.label(class='form-label') }}
+					{{ form.category(class='form-select form-select-sm') }}
+					{% if form.category.error %}
+					   <span class="text-small text-muted">{{ form.category.error }}</span>
+					{% endif %}
+					
+				</div>
+				<div class="mb-3">
+					{{ form.initial_amt.label(class='form-label') }}
+					{{ form.initial_amt(class='form-control form-control-sm') }}
+					{% if form.initial_amt.errors %}
+					{% for error in form.initial_amt.errors %}
+					   <span class="text-small text-muted">{{ error }}</span>
+					 {% endfor %}
+					{% endif %}
+				</div>
+				
+				{{ form.submit1(class='btn btn-outline-dark btn-sm') }}
+			</form>
+		</div>
+		<div class="col-sm col-md col-lg">
+			<div class="row">
+				<div class="col-sm col-md col-lg-8">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title">All Accounts</h5>
+							<h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
+							{% if accounts.items %}
+							<div class="container-fluid">
+							<ul class="list-group">
+								{% for acc in accounts.items %}
+								<li class="list-group-item d-flex justify-content-between align-items-center">
+									{{ acc.account_name }}
+									<span class="badge">
+										<form method="POST">
+											{{ form2.csrf_token() }}
+											<input id="acc_id" name="acc_id" type="hidden" value="{{ acc.id }}">
+
+											{{ form2.submit2(class='btn btn-outline-dark btn-sm') }}
+										</form>
+									</span>
+								</li>
+								{% endfor %}
+								
+							</ul>
+							<nav class="mt-2">
+								<ul class="pagination justify-content-end">
+									<li class="page-item {% if accounts.page == 1 %} disabled {% endif %}">
+										<a class="page-link" href="{{ url_for('views_bp.accounts', page=accounts.prev) }}" aria-label="Previous">
+											<span aria-hidden="true">&laquo;</span>
+										</a>
+									</li>
+									{% for page_num in accounts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+									{% if page_num %}
+									{% if accounts.page == page_num %}
+									<li class="page-item active"><a class="page-link" href="{{ url_for('views_bp.accounts', page=page_num) }}">{{ page_num }}</a></li>
+									{% else %}
+									<li class="page-item"><a class="page-link" href="{{ url_for('views_bp.accounts', page=page_num) }}">{{ page_num }}</a></li>
+									{% endif %}
+									{% endif %}
+									{% endfor %}
+									<li class="page-item {% if accounts.page == accounts.pages %} disabled {% endif %}">
+										<a class="page-link" href="{{ url_for('views_bp.accounts', page=accounts.next_num) }}" aria-label="Next">
+											<span aria-hidden="true">&raquo;</span>
+										</a>
+									</li>
+								</ul>
+							</nav>
+							<p class="text-end fw-lighter mt-2">
+								Showing page {{ accounts.page }} of {{ accounts.pages }}
+							</p>
+						</div>
+						{% else %}
+						<p> No Account Created...</p>
+						{% endif %}
+						</div>
+					</div>
+					
+				</div>
+
+				<div class="col col-sm col-md col-lg">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title">Default Account</h5>
+							{% if default_acc %}
+							
+							<p><b>{{ default_acc.account_name }}</b></p>
+							{% else %}
+							<p>No Selected Default Account..</p>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}

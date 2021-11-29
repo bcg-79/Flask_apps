@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %} Login {% endblock %}
+
+{% block nav %}
+  <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+    <li class="nav-item">
+      <a class="nav-link active" aria-current="page" href="{{ url_for('auth_bp.signup') }}">SignUp</a>
+    </li>
+  </ul>
+{% endblock %}
+
+{% block content %}
+
+<div class="container-lg mt-5">
+  <div class="row">
+    <div class="col-md-6 col-lg-2 col-xl-6">
+      {% with messages = get_flashed_messages(with_categories=True) %}
+      {% if messages: %}
+      {% for cat, msg in messages: %}
+      {% if cat == 'success': %}
+      <div class="text-success">{{ msg }}</div>
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+    </div>
+    <div class="col-md-6 col-lg-2 col-xl-6">
+
+      <div class="card mb-3">
+
+        <div class="card-body">
+          <form method="POST">
+            {{ form.csrf_token }}
+            <div class="mb-3">
+              <label for="exampleInputEmail1" class="form-label">Email address/Username</label>
+              {{ form.email(class='form-control') }}
+              <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+            </div>
+            <div class="mb-3">
+              <label for="exampleInputPassword1" class="form-label">Password</label>
+              {{ form.password(class='form-control') }}
+
+            {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages: %}
+            {% for cat, msg in messages: %}
+            {% if cat == 'error' %}
+            <div class="text-danger">{{ msg }}</div>
+            {% elif cat == 'warning' %}
+            <div class="text-warning">{{ msg }}</div>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+          </div>
+
+            <button type="submit" class="btn btn-outline-dark">Log Me In</button>
+            <div class="form-text">Dont have account <a href="{{ url_for('auth_bp.signup') }}"> SignUp here</a></div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

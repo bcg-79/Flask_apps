@@ -1,0 +1,126 @@
+        {% extends 'base.html' %}
+
+        {% block title %} Dashboard {% endblock %}
+
+        {% block nav %}
+
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+                <a class="nav-link" aria-current="page" href="{{ url_for('views_bp.accounts') }}">Accounts</a>
+            </li>
+
+        </ul>
+        <form class="d-flex" method="POST">
+            <a class="btn btn-outline-success" href="{{ url_for('auth_bp.logout') }}">LogOut</a>
+        </form>
+
+        {% endblock %}
+
+        {% block content %}
+
+        <div class="container mt-5 ">
+            <div class="row">
+                <div class="col-sm col-md col-lg mb-2">
+
+                    <div class="card" >
+                      <div class="card-body">
+                        
+                        <div class="row">
+                            <div class="col">
+                                {% if user %}
+                                <h5 class="card-title">Welcome : {{ user.username.title() }}</h5>
+                                {% endif %}
+                                
+                                {% if not active_acc %}
+                                <h6 class="card-subtitle mb-2 text-muted">You Dont Have any Account yet!</h6>
+                                {% endif %}
+                            </div>
+                            <div class="col">
+                                    {% if active_acc %}
+                                    <span>Active Account : <b>{{ active_acc.account_name.title() }}</b></span>
+                                    <br/>
+                                    <span>No. of Accounts : {{ no_of_acc }}</span>
+                                    <br/>
+                                    <span>Initial Account : <b class="text-success">{{ active_acc.initial_amount }} </b></span>
+                                    <br/>
+                                    <span>Remaining Account : <b class="text-danger">{{ active_acc.remaining_amount }} </b> </span>
+                                    {% endif %}
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                {% if active_acc %}
+                <div class="card p-2 mt-2">
+                    {% with messages = get_flashed_messages(with_categories=True) %}
+                    {% if messages %}
+                    {% for cat, msg in messages %}
+                    {% if cat == 'add_spend' %}
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                       {{ msg }}
+                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                   </div>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    
+                   <form class="row g-3" method="POST">
+                       {{ form.csrf_token() }}
+                      <div class="col-md-6">
+                        <input id="exp_acc_id" name="exp_acc_id" type="hidden" value="{{ active_acc.id }}">
+                        {{ form.add_spend.label(class='form-label') }}
+                        {{ form.add_spend(class='form-select form-select-sm')}}
+
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.amount.label(class='form-label') }}
+                        {{ form.amount(class='form-control form-control-sm') }}
+                    </div>
+                    <div class="col-6">
+                        {{ form.payee.label(class='form-label') }}
+                        {{ form.payee(class='form-control form-control-sm') }}
+                    </div>
+                    <div class="col-6">
+                        {{ form.category.label(class='form-label') }}
+                        {{ form.category(class='form-select form-select-sm') }}
+                    </div>
+
+                    <div class="col-12">
+                        {{ form.notes.label(class='form-label') }}
+                        {{ form.notes(class='form-control form-control-sm', rows=2) }}
+                    </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-outline-dark btn-sm">Add/Spend Money</button>
+            </div>
+        </form>
+      
+ </div>
+ {% endif %}
+            </div>
+
+            <div class="col-sm col-md col-lg ">
+                <div class="card p-1" >
+                    <div class="card-body">
+                        <h5 class="card-title">Last 5 Transactions</h5>
+                    <h6 class="card-subtitle mb-2 "><a href="{{ url_for('views_bp.transactions') }}" class="link-secondary">View all Transactions</a></h6>
+                    {% if last_5_exp %}
+                    <ul class="list-group list-group-flush">
+                        {% for tx in last_5_exp %}
+                            {% if tx.add_spend == 0 %}
+                            <li class="list-group-item text-danger">{{tx.payee.title()}} Spend {{ tx.amount }} </li>
+                            {% elif tx.add_spend == 1 %}
+                            <li class="list-group-item text-success">{{tx.payee.title()}} Added {{ tx.amount }} </li>
+                            {% endif %}
+                        {% endfor %}
+                  </ul>
+                  {% endif %}
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
